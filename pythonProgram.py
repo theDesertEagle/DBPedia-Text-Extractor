@@ -14,11 +14,11 @@ if sys.argv[1] == "":
     print("<ERROR> Personality name not entered")
     exit()
 data = rdflib.Graph()
-data.parse("http://dbpedia.org/data/" + sys.argv[1].replace(" ","_") + ".rdf")
+data.parse("http://dbpedia.org/data/" + sys.argv[1].title().replace(" ","_") + ".rdf")
 if not data:
     print("<ERROR> Historic personality does not exist ")
     exit()
-historicalPersonalityName = sys.argv[1].rsplit('/',1)[-1].rsplit('.')[0].replace("_", " ")
+historicalPersonalityName = sys.argv[1].title().replace("_"," ") #To extract name for URL, this line is handy: historicalPersonalityName = sys.argv[1].rsplit('/',1)[-1].rsplit('.')[0].replace("_", " ")
 textData = [[0 for x in range(3)] for y in range(len(data))]
 
 #Storing the tuples from RDF graph as lists
