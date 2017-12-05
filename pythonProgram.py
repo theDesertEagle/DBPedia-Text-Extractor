@@ -33,7 +33,7 @@ i = 0
 #Sorting the data on the basis of subject and predicate columns
 sortedTextData = sorted(textData, key = operator.itemgetter(0, 1))#lambda x:x[1])
 
-fileWriter = csv.writer(open(historicalPersonalityName + ".csv","w"), delimiter=',', quoting=csv.QUOTE_ALL)
+fileWriter = csv.writer(open(historicalPersonalityName.replace(" ","_") + ".csv","w"), delimiter=',', quoting=csv.QUOTE_ALL)
 #dataToWrite = [0 for x in range(2)]
 dataToWrite = [sortedTextData[0][1], sortedTextData[0][2]]
 numberOfBirthdates = 0;
@@ -63,4 +63,4 @@ for subject, predicate, obj in sortedTextData:
            fileWriter.writerow(dataToWrite)
            dataToWrite = [predicate, obj]
            intentInConsideration = predicate
-print("<SUCCESS> Preprocessed Data stored in \"" + historicalPersonalityName + ".csv\" ")
+print("<SUCCESS> Preprocessed Data stored in \"" + historicalPersonalityName.replace(" ","_") + ".csv\" ")
