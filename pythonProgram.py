@@ -9,7 +9,10 @@ def containsUnwantedData(intent):
         return True
     return False
 
-#
+#Parsing the RDF file of the given historical personality
+if sys.argv[1] == "":
+    print("<ERROR> Personality name not entered")
+    exit()
 data = rdflib.Graph()
 data.parse("http://dbpedia.org/data/" + sys.argv[1].replace(" ","_") + ".rdf")
 if not data:
