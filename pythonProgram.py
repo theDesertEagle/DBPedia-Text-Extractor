@@ -3,8 +3,18 @@ import operator
 import rdflib
 import csv
 
+#Function to remove prospective intents with unwanted data
+def containsUnwantedData(intent):
+    if ("#" in intent) or ("label" in intent) or ("comment" in intent) or ("wiki" in intent) or ("wordnet" in intent) or ("rdf" in intent):
+        return True
+    return False
+
+#
 data = rdflib.Graph()
-data.load(sys.argv[1])
+data.parse("http://dbpedia.org/data/" + sys.argv[1].replace(" ","_") + ".rdf")
+if not data:
+    print("<ERROR> Historic personality does not exist ")
+    exit()
 historicalPersonalityName = sys.argv[1].rsplit('/',1)[-1].rsplit('.')[0].replace("_", " ")
 textData = [[0 for x in range(3)] for y in range(len(data))]
 
@@ -21,7 +31,8 @@ i = 0
 sortedTextData = sorted(textData, key = operator.itemgetter(0, 1))#lambda x:x[1])
 
 fileWriter = csv.writer(open(historicalPersonalityName + ".csv","w"), delimiter=',', quoting=csv.QUOTE_ALL)
-dataToWrite = [0 for x in range(3)]
+#dataToWrite = [0 for x in range(2)]
+dataToWrite = [sortedTextData[0][1], sortedTextData[0][2]]
 numberOfBirthdates = 0;
 
 #Checking number of birthdates
@@ -30,15 +41,23 @@ for subject, predicate, obj in sortedTextData:
         numberOfBirthdates = numberOfBirthdates + 1
 skipFlag = True
 
-#Writing lists to a CSV file named as the historical figure
+#Preprocess data to remove unwanted data and writing stored data in lists to a CSV file named as the historical figure
 #print(historicalPersonalityName)
+intentInConsideration = sortedTextData[0][2]
 for subject, predicate, obj in sortedTextData:
    # print(subject, "||||", predicate, ">>>>", obj)  #if subject == historicalPersonalityName:
-   if skipFlag == True: #To skip spurious birth dates
-        if predicate == "birthDate" and numberOfBirthdates > 1:
-            skipFlag = False
-            continue
-    dataToWrite[0] = subject
-    dataToWrite[1] = predicate
-    dataToWrite[2] = obj
-    fileWriter.writerow(dataToWrite)
+   if subject == historicalPersonalityName:
+       if containsUnwantedData(predicate) == True:
+           continue
+       if skipFlag == True: #To skip spurious birth dates
+           if predicate == "birthDate" and numberOfBirthdates > 1:
+               skipFlag = False
+               continue
+       #dataToWrite[0] = subject
+       if intentInConsideration == predicate:
+           dataToWrite.append(obj)
+       else:
+           fileWriter.writerow(dataToWrite)
+           dataToWrite = [predicate, obj]
+           intentInConsideration = predicate
+print("<SUCCESS> Preprocessed Data stored in \"" + historicalPersonalityName + ".csv\" ")
